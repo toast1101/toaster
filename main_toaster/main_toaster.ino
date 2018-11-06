@@ -1,7 +1,10 @@
+//https://www.arduino.cc/reference/en/
+int sensorInput = 8;
+
 void setup() {
   Serial.begin(9600);
   Serial.print("===========Start!===========");
-  
+  p
 
 }
 int valueState;
