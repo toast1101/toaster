@@ -4,7 +4,7 @@ int sensorInput = 8;
 void setup() {
   Serial.begin(9600);
   Serial.print("===========Start!===========");
-  p
+  pinMode(8,INPUT);
 
 }
 int valueState;
@@ -12,6 +12,7 @@ int sensorValue;
 int valueGate = 100;
 int sensorState;
 void loop() {
+  sensorValue = digitalRead(sensorInput);
   if(sensorValue<100){
     valueState = 1;
   }
