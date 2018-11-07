@@ -1,41 +1,125 @@
 //https://www.arduino.cc/reference/en/
+int trigPin = 11;    // Trigger
+int echoPin = 12;    // Echo
+long duration, cm, inches;
+
+int relayPin = 7;
+
 int sensorInput = 8;
-//指定接腳
-
-int s1 = 25;
-int s2 = 50;
-int s3 = 75;
-int s4 = 100;
-//將TCRT感測器讀到的數字，利用四個標準值分成五段(四個功能段+超出感測範圍即非功能區段)
-
-void setup() {
+void setup()
+{
   Serial.begin(9600);
   Serial.print("===========Start!===========");
-  pinMode(8,INPUT);
-  //pinMode(A0,INPUT);
-//將感測接腳模式設為輸入
-}
-int valueState;       //感測分段模式(狀態1、2、3、4)
-int sensorValue;      //接收感測數值
-int valueGate = 100;  //最低接收數值，同時也是分段感測程式的啟動條件
+  pinMode(8, INPUT);
 
-void loop() {
-  sensorValue = analogRead(A0);   //讀取感測值
-  if(sensorValue<s1){
-    valueState = 1;
+  pinMode(relayPin, OUTPUT);
+
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  //pinMode(A0,INPUT);
+}
+int valueState;
+int sensorValue;
+//int V;
+int valueGate = 100;
+int sensorState;
+void loop()
+{
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(5);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+
+  pinMode(echoPin, INPUT);
+  duration = pulseIn(echoPin, HIGH);
+
+  sensorValue = duration;
+  //V = sensorValue/100;
+  switch (sensorValue)
+  {
+    case 0 ... 100:
+      valueState = 1;
+      break;
+    case 101 ... 20000:
+      valueState = 2;
+      break;
+    case 20001 ... 300000:
+      valueState = 3;
+      break;
+    case 300001 ... 310001:
+      valueState = 4;
+      break;
+    default:
+      valueState = 0;
   }
-  else if(sensorValue>=s1 && sensorValue<s2){
-    valueState = 2;
-  }
-  else if(sensorValue>=s2 && sensorValue<s3){
-    valueState = 3;
-  }
-  else if(sensorValue>=s3 && sensorValue<s4){
-    valueState = 4;
-  }
+  /*
+    if(sensorValue<s1){
+     valueState = 1;
+    }
+    else if(sensorValue>=s1 && sensorValue<s2){
+     valueState = 2;
+    }
+    else if(sensorValue>=s2 && sensorValue<s3){
+     valueState = 3;
+    }
+    else if(sensorValue>=s3 && sensorValue<s4){
+     valueState = 4;
+    }
+  */
   //delay(1000);
   //Serial.println("=====wryyyyyyy=====");
   //Serial.println(" valueState: " + valueState);
-  Serial.println(valueState);     //打印出分段狀態(1、2、3、4)
-  delay(1000);                   //連續感測延遲
+  Serial.println(valueState);
+  if (sensorValue != 0) {
+    switch (valueState)
+    {
+      case 1:
+        int a1;
+        for (a1 = 0; a1 < 10; a1++) {
+          digitalWrite(relayPin, HIGH);
+          delay(500);
+          digitalWrite(relayPin, LOW);
+          delay(500);
+        }
+        break;
+      case 2:
+        int a2;
+        for (a2 = 0; a2 < 10; a2++) {
+          digitalWrite(relayPin, HIGH);
+          delay(500);
+          digitalWrite(relayPin, LOW);
+          delay(700);
+        }
+        break;
+      case 3:
+        int a3;
+        for (a3 = 0; a3 < 10; a3++) {
+          digitalWrite(relayPin, HIGH);
+          delay(500);
+          digitalWrite(relayPin, LOW);
+          delay(1000);
+        }
+        digitalWrite(relayPin, HIGH);
+        delay(500);
+        digitalWrite(relayPin, LOW);
+        delay(1000);
+        break;
+      case 4:
+        int a4;
+        for (a4 = 0; a4 < 10; a4++) {
+          digitalWrite(relayPin, HIGH);
+          delay(500);
+          digitalWrite(relayPin, LOW);
+          delay(1500);
+        }
+        break;
+      default:
+        break;
+    }
+    delay(2000);
+  } else {
+    delay(1000);
+  }
+
 }
