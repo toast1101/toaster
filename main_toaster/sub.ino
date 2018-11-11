@@ -1,10 +1,11 @@
-void getAllSensorValue(){
+void getAllSensorValue() {
   tcrt1Value = analogRead(tcrt1InputA0);
   tcrt2Value = analogRead(tcrt2InputA0);
   mlxValue = mlx.readObjectTempC();     //讀取當前吐司溫度
+  temperature = mlxValue;
 }
 
-void detect_toast(){
+void detect_toast() {
   switch (tcrt1Value)               //========TCRT1=========
   {
     case 0 ... 100:
@@ -21,47 +22,97 @@ void detect_toast(){
   }
 }
 
-void debug(){
+void debug() {
   Serial.println("======(； ･`д･´)=======");
   Serial.print("tcrtState = ");
   Serial.print(tcrtState); //=========偵測狀態========
   Serial.print(", state = ");
   Serial.println(functionSelect);//一般模式、智慧模式切換開關
-  Serial.print("mlxValue = "); Serial.print(mlxValue);Serial.println("*C");
+  Serial.print("mlxValue = "); Serial.print(mlxValue); Serial.println("*C");
   Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
+  Serial.print("tcrt2Value = "); Serial.println(tcrt2Value);
+  Serial.print("heatMode = "); Serial.println(heatMode);
 }
 
-void fastHeatMode(){
+void calculateHeatMode() {
+  if (temperature <= 5) { //冷凍
+    if (tcrtState == 0) { //厚片
+      heatMode = 'F';
+    }
+    else if (tcrtState == 1) { //薄片
+      heatMode = 'E';
+    }
+    else heatMode = 'N';
+  }
+  else if (temperature <= 20) { //冷藏
+    if (tcrtState == 0) { //厚片
+      heatMode = 'D';
+    }
+    else if (tcrtState == 1) { //薄片
+      heatMode = 'C';
+    }
+    else heatMode = 'N';
+  }
+  else { //temperature > 20 常溫
+    if (tcrtState == 0) { //厚片
+      heatMode = 'B';
+    }
+    else if (tcrtState == 1) { //薄片
+      heatMode = 'A';
+    }
+    else heatMode = 'N';
+  }
+}
+
+void fastHeatMode() {
   if (functionSelect == 0) //==========模式為0(智慧模式--快速)==========
   {
-    if (tcrtState != 0)
+    if (tcrtState != 2)
     {
       digitalWrite(relay2Pin, HIGH);
-      delay(2000);
-      switch (tcrtState){
-        case 1:
-          Serial.print("s1");
+      delay(120000);//基礎加熱時間
+      switch (heatMode) {
+        case 'A':
+          Serial.print("A");
           digitalWrite(relay2Pin, HIGH);
-          delay(5000);
+          delay(10000);
           digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
-        case 2:
-          Serial.print("s2");
+        case 'B':
+          Serial.print("B");
           digitalWrite(relay2Pin, HIGH);
-          delay(4000);
+          delay(30000);
           digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
-        case 3:
-          Serial.print("s3");
+        case 'C':
+          Serial.print("C");
           digitalWrite(relay2Pin, HIGH);
-          delay(3000);
+          delay(60000);
           digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
-        case 4:
-          Serial.print("s4");
+        case 'D':
+          Serial.print("D");
           digitalWrite(relay2Pin, HIGH);
-          delay(2000);
+          delay(90000);
           digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
+          break;
+        case 'E':
+          Serial.print("E");
+          digitalWrite(relay2Pin, HIGH);
+          delay(120000);
+          digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
+          break;
+        case 'F':
+          Serial.print("F");
+          digitalWrite(relay2Pin, HIGH);
+          delay(150000);
+          digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         default:
           break;
@@ -75,63 +126,82 @@ void fastHeatMode(){
   }
 }
 
-void perfectHeatMode(){
+void perfectHeatMode() {
   if (functionSelect == 1)          //==========模式為1(智慧模式--完美)==========
   {
     if (tcrtState != 2)             //==========2個TCRT狀態不為2(正確)==========
     {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
-      delay(2000);//基礎加熱時間
+      delay(120000);              //基礎加熱時間
       switch (heatMode)           //==========狀態為ABCD===========
       {
         case 'A':
           Serial.print("caseA");
-          int a1;
-          for (a1 = 0; a1 < 10; a1++)
-          {
-            digitalWrite(relay2Pin, HIGH);
-            delay(500);
-            digitalWrite(relay2Pin, LOW);
-            delay(500);
-          }
+          digitalWrite(relay2Pin, HIGH);
+          delay(8000);
+          digitalWrite(relay2Pin, LOW);
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         case 'B':
           Serial.print("caseB");
-          int a2;
-          for (a2 = 0; a2 < 10; a2++)
+          for (int i = 0; i < 3; i++)
           {
             digitalWrite(relay2Pin, HIGH);
-            delay(500);
+            delay(5000);
             digitalWrite(relay2Pin, LOW);
-            delay(70);
+            delay(5000);
           }
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         case 'C':
           Serial.print("caseC");
-          int a3;
-          for (a3 = 0; a3 < 10; a3++)
+          for (int i = 0; i < 6; i++)
           {
             digitalWrite(relay2Pin, HIGH);
-            delay(500);
+            delay(6000);
             digitalWrite(relay2Pin, LOW);
-            delay(1000);
+            delay(4000);
           }
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         case 'D':
           Serial.print("caseD");
-          int a4;
-          for (a4 = 0; a4 < 10; a4++)
+          for (int i = 0; i < 9; i++)
           {
             digitalWrite(relay2Pin, HIGH);
-            delay(50);
+            delay(7000);
             digitalWrite(relay2Pin, LOW);
-            delay(150);
+            delay(3000);
           }
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
+          break;
+        case 'E':
+          Serial.print("caseE");
+          for (int i = 0; i < 12; i++)
+          {
+            digitalWrite(relay2Pin, HIGH);
+            delay(8000);
+            digitalWrite(relay2Pin, LOW);
+            delay(2000);
+          }
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
+          break;
+        case 'F':
+          Serial.print("caseF");
+          for (int i = 0; i < 15; i++)
+          {
+            digitalWrite(relay2Pin, HIGH);
+            delay(9000);
+            digitalWrite(relay2Pin, LOW);
+            delay(1000);
+          }
+          digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         default:
           break;
       }
       delay(2000);
+      digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
     }
     else                  //==========TCRT1狀態為2(不在偵測範圍內)==========
     {
