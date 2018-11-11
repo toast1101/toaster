@@ -1,160 +1,39 @@
-//int trigPin = 11;    // Trigger
-//int echoPin = 12;    // Echo
-//long duration, cm, inches;  //以上為超音波感測器專用範例CODE
-int functionSelectPin = 5;
-int relayPin = 7;
-int tcrt1InputA0 = A1;//tcrt1的類比讀值輸入接腳
-int tcrt2InputA0 = A2;//tcrt1的類比讀值輸入接腳
-//mlx
+int functionSelectPin = 5;  //快速、完美加熱模式的選擇按鈕
+int relay1Pin = 8;          //電磁鐵控制繼電器
+int relay2Pin = 9;          //電熱絲控制繼電器
+int tcrt1InputA0 = A1;  //tcrt1的類比讀值輸入接腳
+int tcrt2InputA0 = A2;  //tcrt1的類比讀值輸入接腳
+//-----以下為mlx溫度感測器的引入函式、物件宣告-----
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
-
 Adafruit_MLX90614 mlx = Adafruit_MLX90614();
-
-void setup()
-{
+//-----以上為mlx溫度感測器的引入函式、物件宣告-----
+void setup(){
   Serial.begin(9600);
   Serial.print("===========Start!===========");
   pinMode(tcrt1InputA0, INPUT);
   pinMode(tcrt2InputA0, INPUT);
-  pinMode(functionSelectPin,INPUT); 
-  pinMode(relayPin, OUTPUT);
-  //pinMode(trigPin, OUTPUT);
-  //pinMode(echoPin, INPUT);
-  //mlx
-  mlx.begin();  
+  pinMode(functionSelectPin, INPUT);
+  pinMode(relay1Pin, OUTPUT);
+  pinMode(relay2Pin, OUTPUT);
+  mlx.begin();
+  digitalWrite(relay1Pin,HIGH);//上電開啟電磁鐵
 }
 
-int tcrt1Value;
-int tcrt2Value;
-int valueState;
-int valueGate = 100;
-int sensorValue;
-int sensorState;
-int functionSelect;
-int mlxValue;//紅外線溫度感測數值
+int tcrt1Value; //tcrt1感測數值
+int tcrt2Value; //tcrt2感測數值
+int mlxValue;   //紅外線溫度感測數值
+int tcrtState;  //判斷有沒有放吐司
+int functionSelect; //一般模式、智慧模式切換開關
+char heatMode = "N";//加熱模式
 
-void loop()
-{
-  tcrt1Value = analogRead(tcrt1InputA0);
-  tcrt2Value = analogRead(tcrt2InputA0);
-  mlxValue = mlx.readAmbientTempC();
-  functionSelect = digitalRead(functionSelectPin);
-  switch (tcrt1Value)               //========TCRT1=========
-  {
-    case 0 ... 100:
-      valueState = 1;//放厚片
-      break;
-    case 101 ... 150://放薄片
-      valueState = 2;
-      break;
-    case 151 ... 200://沒放東西
-      valueState = 3;
-      break;
-    default:
-      valueState = 3;//沒放東西
-  }
-  Serial.println("======(； ･`д･´)=======");
-  Serial.print("valueState = "); 
-  Serial.print(valueState); //=========偵測狀態========
-  Serial.print(", state = "); 
-  Serial.println(functionSelect);
-  Serial.print("mlxValue = "); Serial.println(mlxValue);
-  Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
-  if(functionSelect == 1)           //==========模式為1==========
-  {
-    if (sensorValue != 0)             //==========TCRT1狀態不為0(正確)==========
-    {
-      digitalWrite(relayPin, HIGH);       //======開啟繼電器=======
-      delay(2000);
-      switch (valueState)             //==========狀態為1234===========
-      {
-      case 1:
-        int a1;
-        for (a1 = 0; a1 < 10; a1++)
-        {
-          digitalWrite(relayPin, HIGH);
-          delay(500);
-          digitalWrite(relayPin, LOW);
-          delay(500);
-        }
-        break;
-      case 2:
-        int a2;
-        for (a2 = 0; a2 < 10; a2++)
-        {
-          digitalWrite(relayPin, HIGH);
-          delay(500);
-          digitalWrite(relayPin, LOW);
-          delay(70);
-        }
-        break;
-      case 3:
-        int a3;
-        for (a3 = 0; a3 < 10; a3++)
-        {
-          digitalWrite(relayPin, HIGH);
-          delay(500);
-          digitalWrite(relayPin, LOW);
-          delay(1000);
-        }
-        break;
-      case 4:
-        int a4;
-        for (a4 = 0; a4 < 10; a4++)
-        {
-          digitalWrite(relayPin, HIGH);
-          delay(50);
-          digitalWrite(relayPin, LOW);
-          delay(150);
-        }
-        break;
-      default:
-        break;
-      }
-    delay(2000);
-    } 
-    else                  //==========TCRT1狀態為0(不在偵測範圍內)==========
-    {
-    delay(250);
-    }
-  }
-  else                          //==========模式為0==========
-  {
-    if (sensorValue != 0) 
-    {
-      digitalWrite(relayPin, HIGH);
-      delay(2000);
-      switch (valueState)
-      {
-        case 1:
-          digitalWrite(relayPin, HIGH);
-          delay(5000);
-          digitalWrite(relayPin, LOW);
-          break;
-        case 2:
-          digitalWrite(relayPin, HIGH);
-          delay(4000);
-          digitalWrite(relayPin, LOW);
-          break;
-        case 3:
-          digitalWrite(relayPin, HIGH);
-          delay(3000);
-          digitalWrite(relayPin, LOW);
-          break;
-        case 4:
-          digitalWrite(relayPin, HIGH);
-          delay(2000);
-          digitalWrite(relayPin, LOW);
-          break;
-        default:
-          break;
-      }
-      delay(2000);
-    } 
-    else          //==========TCRT1狀態為0(不在偵測範圍內)==========
-    {
-    delay(1000);
-    }
-  } 
+void loop(){
+  getAllSensorValue();  //讀取各項感測器數值
+  functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(一般模式、智慧模式切換開關)
+  detect_toast();   //利用2個TCRT判斷吐司是否放入
+  debug();          //在監控視窗上輸出各項數值
+  fastHeatMode();   //依據functionSelect判斷是否進入快速加熱模式
+  //===============================================================
+  perfectHeatMode();//依據functionSelect判斷是否進入完美加熱模式
+  
 }
