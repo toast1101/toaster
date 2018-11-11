@@ -3,9 +3,8 @@
 //long duration, cm, inches;  //以上為超音波感測器專用範例CODE
 int functionSelectPin = 5;
 int relayPin = 7;
-int TcrtInput_01 = 8;
-int TcrtInput_02 = 9;
-
+int tcrt1InputA0 = A1;//tcrt1的類比讀值輸入接腳
+int tcrt2InputA0 = A2;//tcrt1的類比讀值輸入接腳
 //mlx
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
@@ -16,8 +15,8 @@ void setup()
 {
   Serial.begin(9600);
   Serial.print("===========Start!===========");
-  pinMode(TcrtInput_01, INPUT);
-  pinMode(TcrtInput_02, INPUT);
+  pinMode(tcrt1InputA0, INPUT);
+  pinMode(tcrt2InputA0, INPUT);
   pinMode(functionSelectPin,INPUT); 
   pinMode(relayPin, OUTPUT);
   //pinMode(trigPin, OUTPUT);
@@ -26,47 +25,42 @@ void setup()
   mlx.begin();  
 }
 
+int tcrt1Value;
+int tcrt2Value;
 int valueState;
-int sensorValue;
-int Tcrt01Value;
 int valueGate = 100;
+int sensorValue;
 int sensorState;
 int functionSelect;
-int mlxValue;
+int mlxValue;//紅外線溫度感測數值
 
 void loop()
 {
-  //digitalWrite(trigPin, LOW);
-  //delayMicroseconds(5);
-  //digitalWrite(trigPin, HIGH);
-  //delayMicroseconds(10);
-  //digitalWrite(trigPin, LOW);
-  //pinMode(echoPin, INPUT);
-  //duration = pulseIn(echoPin, HIGH);
-  Tcrt01Value = analogRead(TcrtInput_01);
+  tcrt1Value = analogRead(tcrt1InputA0);
+  tcrt2Value = analogRead(tcrt2InputA0);
   mlxValue = mlx.readAmbientTempC();
   functionSelect = digitalRead(functionSelectPin);
-  switch (Tcrt01Value)               //========TCRT1=========
+  switch (tcrt1Value)               //========TCRT1=========
   {
     case 0 ... 100:
-      valueState = 1;
+      valueState = 1;//放厚片
       break;
-    case 101 ... 200:
+    case 101 ... 150://放薄片
       valueState = 2;
       break;
-    case 201 ... 300:
+    case 151 ... 200://沒放東西
       valueState = 3;
       break;
-    case 301 ... 400:
-      valueState = 4;
-      break;
     default:
-      valueState = 0;
+      valueState = 3;//沒放東西
   }
   Serial.println("======(； ･`д･´)=======");
-  Serial.print("valueState"); Serial.print(valueState);       //=========偵測狀態========
-  Serial.print(", state"); Serial.println(functionSelect);
-  Serial.print("mlxValue"); Serial.println(mlxValue);
+  Serial.print("valueState = "); 
+  Serial.print(valueState); //=========偵測狀態========
+  Serial.print(", state = "); 
+  Serial.println(functionSelect);
+  Serial.print("mlxValue = "); Serial.println(mlxValue);
+  Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
   if(functionSelect == 1)           //==========模式為1==========
   {
     if (sensorValue != 0)             //==========TCRT1狀態不為0(正確)==========
