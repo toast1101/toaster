@@ -25,12 +25,12 @@ int tcrt2Value; //tcrt2感測數值
 int mlxValue;   //紅外線溫度感測數值
 int temperature;//紅外線溫度感測數值(把他取成比較好判別的名稱)
 int tcrtState;  //判斷有沒有放吐司
-int functionSelect; //一般模式、智慧模式切換開關
+int functionSelect; //快速加熱、完美加熱模式
 char heatMode = 'N';//加熱模式
 
 void loop(){
   getAllSensorValue();  //讀取各項感測器數值
-  functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(一般模式、智慧模式切換開關)
+  functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(快速加熱、完美加熱模式)
   detect_toast();   //利用2個TCRT判斷吐司是否放入
   calculateHeatMode();
   debug();          //在監控視窗上輸出各項數值

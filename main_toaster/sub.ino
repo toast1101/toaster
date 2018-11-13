@@ -24,11 +24,11 @@ void detect_toast() {
 
 void debug() {
   Serial.println("======(； ･`д･´)=======");
-  Serial.print("tcrtState = ");
-  Serial.print(tcrtState); //=========偵測狀態========
-  Serial.print(", state = ");
-  Serial.println(functionSelect);//一般模式、智慧模式切換開關
-  Serial.print("mlxValue = "); Serial.print(mlxValue); Serial.println("*C");
+  Serial.print("tcrtState(厚片為0，薄片為1) = ");
+  Serial.println(tcrtState); //=========偵測狀態========
+  Serial.print("functionSelect(快速加熱為0，完美加熱為1) = ");
+  Serial.println(functionSelect);//快速加熱、完美加熱模式
+  Serial.print("temperature(溫度) = "); Serial.print(temperature); Serial.println("*C");
   Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
   Serial.print("tcrt2Value = "); Serial.println(tcrt2Value);
   Serial.print("heatMode = "); Serial.println(heatMode);
