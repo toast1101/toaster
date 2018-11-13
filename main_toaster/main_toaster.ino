@@ -17,7 +17,6 @@ void setup(){
   pinMode(relay1Pin, OUTPUT);
   pinMode(relay2Pin, OUTPUT);
   mlx.begin();
-  digitalWrite(relay1Pin,HIGH);//上電開啟電磁鐵
 }
 
 int tcrt1Value; //tcrt1感測數值
@@ -33,6 +32,10 @@ void loop(){
   functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(快速加熱、完美加熱模式)
   detect_toast();   //利用2個TCRT判斷吐司是否放入
   calculateHeatMode();
+  if(tcrtState != 2 && heatMode != 'N'){
+    digitalWrite(relay1Pin,HIGH);//吐司的各項數值正確，開啟電磁鐵準備加熱
+    delay(3000);//等待使用者放入吐司
+  }
   debug();          //在監控視窗上輸出各項數值
   fastHeatMode();   //依據functionSelect判斷是否進入快速加熱模式
   //===============================================================
