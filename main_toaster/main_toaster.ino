@@ -1,8 +1,9 @@
 int functionSelectPin = 5;  //快速、完美加熱模式的選擇按鈕
 int relay1Pin = 8;          //電磁鐵控制繼電器
 int relay2Pin = 9;          //電熱絲控制繼電器
-int tcrt1InputA0 = A1;  //tcrt1的類比讀值輸入接腳
-int tcrt2InputA0 = A2;  //tcrt1的類比讀值輸入接腳
+int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
+int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
+int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
 //-----以下為mlx溫度感測器的引入函式、物件宣告-----
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
@@ -13,6 +14,7 @@ void setup(){
   Serial.print("===========Start!===========");
   pinMode(tcrt1InputA0, INPUT);
   pinMode(tcrt2InputA0, INPUT);
+  pinMode(tcrt2InputD0,INPUT);
   pinMode(functionSelectPin, INPUT);
   pinMode(relay1Pin, OUTPUT);
   pinMode(relay2Pin, OUTPUT);
@@ -20,7 +22,7 @@ void setup(){
 }
 
 int tcrt1Value; //tcrt1感測數值
-int tcrt2Value; //tcrt2感測數值
+int tcrt2Value; //tcrt2感測數值(0與1)
 int mlxValue;   //紅外線溫度感測數值
 int temperature;//紅外線溫度感測數值(把他取成比較好判別的名稱)
 int tcrtState;  //判斷有沒有放吐司

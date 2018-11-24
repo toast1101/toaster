@@ -1,6 +1,6 @@
 void getAllSensorValue() {
   tcrt1Value = analogRead(tcrt1InputA0);
-  tcrt2Value = analogRead(tcrt2InputA0);
+  tcrt2Value = digitalRead(tcrt2InputD0);//做開關判斷，所以只讀高低準位
   mlxValue = mlx.readObjectTempC();     //讀取當前吐司溫度
   temperature = mlxValue;
 }
