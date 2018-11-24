@@ -9,23 +9,23 @@ void detect_toast() {
   switch (tcrt1Value)               //========TCRT1=========
   {
     case 0 ... 100:
-      tcrtState = 0;//放厚片
+      toastInputState = 0;//放厚片
       break;
     case 101 ... 150://放薄片
-      tcrtState = 1;
+      toastInputState = 1;
       break;
     case 151 ... 200://沒放東西
-      tcrtState = 2;
+      toastInputState = 2;
       break;
     default:
-      tcrtState = 2;//沒放東西
+      toastInputState = 2;//沒放東西
   }
 }
 
 void debug() {
   Serial.println("======(； ･`д･´)=======");
-  Serial.print("tcrtState(厚片為0，薄片為1) = ");
-  Serial.println(tcrtState); //=========偵測狀態========
+  Serial.print("toastInputState(厚片為0，薄片為1) = ");
+  Serial.println(toastInputState); //=========偵測狀態========
   Serial.print("functionSelect(快速加熱為0，完美加熱為1) = ");
   Serial.println(functionSelect);//快速加熱、完美加熱模式
   Serial.print("temperature(溫度) = "); Serial.print(temperature); Serial.println("*C");
@@ -36,28 +36,28 @@ void debug() {
 
 void calculateHeatMode() {
   if (temperature <= 5) { //冷凍
-    if (tcrtState == 0) { //厚片
+    if (toastInputState == 0) { //厚片
       heatMode = 'F';
     }
-    else if (tcrtState == 1) { //薄片
+    else if (toastInputState == 1) { //薄片
       heatMode = 'E';
     }
     else heatMode = 'N';
   }
   else if (temperature <= 20) { //冷藏
-    if (tcrtState == 0) { //厚片
+    if (toastInputState == 0) { //厚片
       heatMode = 'D';
     }
-    else if (tcrtState == 1) { //薄片
+    else if (toastInputState == 1) { //薄片
       heatMode = 'C';
     }
     else heatMode = 'N';
   }
   else { //temperature > 20 常溫
-    if (tcrtState == 0) { //厚片
+    if (toastInputState == 0) { //厚片
       heatMode = 'B';
     }
-    else if (tcrtState == 1) { //薄片
+    else if (toastInputState == 1) { //薄片
       heatMode = 'A';
     }
     else heatMode = 'N';
@@ -67,7 +67,7 @@ void calculateHeatMode() {
 void fastHeatMode() {
   if (functionSelect == 0) //==========模式為0(智慧模式--快速)==========
   {
-    if (tcrtState != 2)
+    if (toastInputState != 2)
     {
       digitalWrite(relay2Pin, HIGH);
       delay(120000);//基礎加熱時間
@@ -129,7 +129,7 @@ void fastHeatMode() {
 void perfectHeatMode() {
   if (functionSelect == 1)          //==========模式為1(智慧模式--完美)==========
   {
-    if (tcrtState != 2)             //==========2個TCRT狀態不為2(正確)==========
+    if (toastInputState != 2)             //==========2個TCRT狀態不為2(正確)==========
     {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
       delay(120000);              //基礎加熱時間

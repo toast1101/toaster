@@ -25,18 +25,29 @@ int tcrt1Value; //tcrt1感測數值
 int tcrt2Value; //tcrt2感測數值(0與1)
 int mlxValue;   //紅外線溫度感測數值
 int temperature;//紅外線溫度感測數值(把他取成比較好判別的名稱)
-int tcrtState;  //判斷有沒有放吐司
+int toastInputState = 2;  //判斷有沒有放吐司
 int functionSelect; //快速加熱、完美加熱模式
 char heatMode = 'N';//加熱模式
 
 void loop(){
   getAllSensorValue();  //讀取各項感測器數值
   functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(快速加熱、完美加熱模式)
-  detect_toast();   //利用2個TCRT判斷吐司是否放入
+  if(tcrt1Value <= 300 && toastInputState == 2){//偵測到有東西放入
+    delay(1000); //等待1秒後再判斷會較準確
+    getAllSensorValue();  //再次讀取各項感測器數值
+    if(tcrt1Value <= 300) detect_toast(); //利用1個TCRT判斷吐司是否放入
+  }
+  
   calculateHeatMode();
-  if(tcrtState != 2 && heatMode != 'N'){
+  
+  if(toastInputState != 2 && heatMode != 'N'){
     digitalWrite(relay1Pin,HIGH);//吐司的各項數值正確，開啟電磁鐵準備加熱
-    delay(3000);//等待使用者放入吐司
+    while(tcrt2Value == 1){//1為尚未按下，0為已經按下按鈕
+      getAllSensorValue();  //讀取各項感測器數值
+      if(tcrt2Value == 0) delay(300); //等待使用者按下麵包機按鈕
+      if(tcrt2Value == 0) break; //確定按鈕已經按下跳出 等待按鈕按下迴圈
+      Serial.println("while");
+    }
   }
   debug();          //在監控視窗上輸出各項數值
   fastHeatMode();   //依據functionSelect判斷是否進入快速加熱模式
