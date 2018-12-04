@@ -4,6 +4,9 @@ int relay2Pin = 9;          //電熱絲控制繼電器
 int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
 int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
 int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
+//在Arduino Nano Board 的 A5為SCL
+//                        A4為SDA
+
 //-----以下為mlx溫度感測器的引入函式、物件宣告-----
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
