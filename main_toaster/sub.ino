@@ -8,13 +8,13 @@ void getAllSensorValue() {
 void detect_toast() {
   switch (tcrt1Value)               //========TCRT1=========
   {
-    case 0 ... 100:
+    case 0 ... 300:
       toastInputState = 0;//放厚片
       break;
-    case 101 ... 150://放薄片
+    case 501 ... 700://放薄片
       toastInputState = 1;
       break;
-    case 151 ... 200://沒放東西
+    case 701 ... 1200://沒放東西
       toastInputState = 2;
       break;
     default:
