@@ -70,7 +70,15 @@ void fastHeatMode() {
     if (toastInputState != 2)
     {
       digitalWrite(relay2Pin, HIGH);
-      delay(120000);//基礎加熱時間
+      int remainTime = 120;
+      for (int owo = 0; owo < 120; owo++) { //基礎加熱時間120s
+        prems = ms = millis();
+        while (ms - prems <= 1000) { //1s
+          ms = millis();
+        }
+        remainTime -= 1;
+        Serial.println("基礎加熱剩餘秒數:" + remainTime);
+      }
       switch (heatMode) {
         case 'A':
           Serial.print("A");
@@ -132,7 +140,15 @@ void perfectHeatMode() {
     if (toastInputState != 2)             //==========2個TCRT狀態不為2(正確)==========
     {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
-      delay(120000);              //基礎加熱時間
+      int remainTime = 120;
+      for (int owo = 0; owo < 120; owo++) { //基礎加熱時間120s
+        prems = ms = millis();
+        while (ms - prems <= 1000) { //1s
+          ms = millis();
+        }
+        remainTime -= 1;
+        Serial.println("基礎加熱剩餘秒數:" + remainTime);
+      }
       switch (heatMode)           //==========狀態為ABCD===========
       {
         case 'A':

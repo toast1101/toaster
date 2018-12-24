@@ -4,9 +4,11 @@ int relay2Pin = 9;          //電熱絲控制繼電器
 int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
 int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
 int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
+unsigned long ms;   //當前時間
+unsigned long prems;//前一次紀錄的時間
+
 //在Arduino Nano Board 的 A5為SCL
 //                        A4為SDA
-
 //-----以下為mlx溫度感測器的引入函式、物件宣告-----
 #include <Wire.h>
 #include <Adafruit_MLX90614.h>
@@ -22,6 +24,8 @@ void setup() {
   pinMode(relay1Pin, OUTPUT);
   pinMode(relay2Pin, OUTPUT);
   mlx.begin();
+  ms = millis();
+  prems = ms;
 }
 
 int tcrt1Value; //tcrt1感測數值
@@ -33,12 +37,16 @@ int functionSelect; //快速加熱、完美加熱模式
 char heatMode = 'N';//加熱模式
 
 void loop() {
+  ms = millis();
   getAllSensorValue();  //讀取各項感測器數值
   detect_toast();//判斷吐司厚度
   functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(快速加熱、完美加熱模式)
   if (toastInputState != 2) { //利用1個TCRT判斷吐司是否放入
     for (int i = 0; i < 5; i++) {//共計判斷5次(約花費1秒)會較準確
-      delay(200); 
+      prems = ms = millis();
+      while(ms - prems <= 200){//delay200ms
+         ms = millis();
+      }
       getAllSensorValue();  //再次讀取各項感測器數值
       detect_toast();//再次判斷吐司厚度
       if (toastInputState != 2) continue;//確定連續5次偵測到有東西放入
