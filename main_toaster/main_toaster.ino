@@ -4,6 +4,9 @@ int relay2Pin = 9;          //電熱絲控制繼電器
 int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
 int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
 int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
+int AdjustHeatTimeButton1=11;   //微調加熱時間選擇開關
+int AdjustHeatTimeButton2=12;   //微調加熱時間選擇開關
+int ReheatButton = 3;   //再加熱選擇開關
 unsigned long ms;   //當前時間
 unsigned long prems;//前一次紀錄的時間
 

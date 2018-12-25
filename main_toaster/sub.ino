@@ -3,6 +3,7 @@ void getAllSensorValue() {
   tcrt2Value = digitalRead(tcrt2InputD0);//做開關判斷，所以只讀高低準位
   mlxValue = mlx.readObjectTempC();     //讀取當前吐司溫度
   temperature = mlxValue;
+  
 }
 
 void detect_toast() {
@@ -77,7 +78,7 @@ void fastHeatMode() {
           ms = millis();
         }
         remainTime -= 1;
-        Serial.println("基礎加熱剩餘秒數:" + remainTime);
+        Serial.print("基礎加熱剩餘秒數:");Serial.println(remainTime);
       }
       switch (heatMode) {
         case 'A':
@@ -147,7 +148,7 @@ void perfectHeatMode() {
           ms = millis();
         }
         remainTime -= 1;
-        Serial.println("基礎加熱剩餘秒數:" + remainTime);
+        Serial.print("基礎加熱剩餘秒數:");Serial.println(remainTime);
       }
       switch (heatMode)           //==========狀態為ABCD===========
       {
