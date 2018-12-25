@@ -46,6 +46,7 @@ void loop() {
   ms = millis();
   getAllSensorValue();  //讀取各項感測器數值
   detect_toast();//判斷吐司厚度
+  reheatMode();//再加熱模式(含判斷)
   functionSelect = digitalRead(functionSelectPin);//讀取開關選擇的模式(快速加熱、完美加熱模式)
   if (toastInputState != 2) { //利用1個TCRT判斷吐司是否放入
     for (int i = 0; i < 5; i++) {//共計判斷5次(約花費1秒)會較準確
@@ -59,7 +60,8 @@ void loop() {
       else break;
     }
   }
-  if (toastInputState != 2) calculateHeatMode();
+  
+  if (toastInputState != 2) calculateHeatMode();//確定吐司正確放入量測盒後，計算加熱模式
 
   if (toastInputState != 2 && heatMode != 'N') {
     digitalWrite(relay1Pin, HIGH); //吐司的各項數值正確，開啟電磁鐵準備加熱
@@ -74,5 +76,5 @@ void loop() {
   fastHeatMode();   //依據functionSelect判斷是否進入快速加熱模式
   //===============================================================
   perfectHeatMode();//依據functionSelect判斷是否進入完美加熱模式
-
+  
 }

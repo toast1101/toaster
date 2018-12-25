@@ -35,9 +35,9 @@ void debug() {
   Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
   Serial.print("tcrt2Value = "); Serial.println(tcrt2Value);
   Serial.print("heatMode = "); Serial.println(heatMode);
-  Serial.print("adjustHeatTimeButton1 and 2= ");Serial.print(adjustHeatTimeButton1State);
+  Serial.print("adjustHeatTimeButton1 and 2= "); Serial.print(adjustHeatTimeButton1State);
   Serial.println(adjustHeatTimeButton2State);
-  Serial.print("reheatButton = ");Serial.println(reheatButtonState);
+  Serial.print("reheatButton = "); Serial.println(reheatButtonState);
 }
 
 void calculateHeatMode() {
@@ -68,14 +68,50 @@ void calculateHeatMode() {
     }
     else heatMode = 'N';
   }
-  if(adjustHeatTimeButton1State ==1 && adjustHeatTimeButton2State == 0){
+  if (adjustHeatTimeButton1State == 1 && adjustHeatTimeButton2State == 0) {
     adjustHeatTime = -10;
   }
-  else if(adjustHeatTimeButton1State ==0 && adjustHeatTimeButton2State == 1){
+  else if (adjustHeatTimeButton1State == 0 && adjustHeatTimeButton2State == 1) {
     adjustHeatTime = 10;
   }
-  else{
+  else {
     adjustHeatTime = 0;
+  }
+}
+
+void reheatMode() {
+  if (reheatButtonState == 1) { //判斷是否進入再加熱模式
+    delay(10);//10ms防雜訊
+    if (reheatButtonState == 1) {//再次判斷是否進入再加熱模式
+      digitalWrite(relay1Pin, HIGH); //導通電磁鐵
+      while (tcrt2Value == 1) { //1為尚未按下，0為已經按下按鈕
+        getAllSensorValue();  //讀取各項感測器數值
+        if (tcrt2Value == 0) delay(100); //等待使用者按下麵包機按鈕
+        if (tcrt2Value == 0) break; //確定按鈕已經按下跳出 等待按鈕按下迴圈
+        Serial.println("while");
+      }
+      ms = prems = millis();
+      float reheatTime = 60;//60s
+      digitalWrite(relay2Pin,HIGH);
+      while (reheatTime != 0) {
+        while (ms - prems < 100) { //delay 100ms
+          ms = millis();
+        }
+        reheatTime -= 0.1;
+        Serial.print("剩餘再加熱時間:"); Serial.println(reheatTime);
+        if (digitalRead(reheatButton) == 0) {
+          for (int owo = 0; owo < 10; owo++) {
+            delay(5);
+            if (digitalRead(reheatButton) == 0); //確定開關被關掉，不重置迴圈
+            else break;//跳出迴圈
+            if (owo == 9 && digitalRead(reheatButton) == 0)reheatTime = 0;
+            //真的確定開關被關掉，直接跳出
+          }
+        }
+      }
+      digitalWrite(relay2Pin,LOW);//turn off heater
+      digitalWrite(relay1Pin,LOW);//turn off magnet
+    }
   }
 }
 
@@ -87,13 +123,13 @@ void fastHeatMode() {
       digitalWrite(relay2Pin, HIGH);
       int remainTime = 120;
       remainTime += adjustHeatTime;
-      while(remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
+      while (remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
         }
         remainTime -= 1;
-        Serial.print("基礎加熱剩餘秒數:");Serial.println(remainTime);
+        Serial.print("基礎加熱剩餘秒數:"); Serial.println(remainTime);
       }
       switch (heatMode) {
         case 'A':
@@ -158,13 +194,13 @@ void perfectHeatMode() {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
       int remainTime = 120;
       remainTime += adjustHeatTime;
-      while(remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
+      while (remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
         }
         remainTime -= 1;
-        Serial.print("基礎加熱剩餘秒數:");Serial.println(remainTime);
+        Serial.print("基礎加熱剩餘秒數:"); Serial.println(remainTime);
       }
       switch (heatMode)           //==========狀態為ABCD===========
       {
