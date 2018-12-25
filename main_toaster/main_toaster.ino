@@ -1,15 +1,18 @@
-int functionSelectPin = 5;  //快速、完美加熱模式的選擇按鈕
-int relay1Pin = 8;          //電磁鐵控制繼電器
-int relay2Pin = 9;          //電熱絲控制繼電器
-int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
-int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
-int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
-int AdjustHeatTimeButton1=11;   //微調加熱時間選擇開關
-int AdjustHeatTimeButton2=12;   //微調加熱時間選擇開關
-int ReheatButton = 3;   //再加熱選擇開關
+const int functionSelectPin = 5;  //快速、完美加熱模式的選擇按鈕
+const int relay1Pin = 8;          //電磁鐵控制繼電器
+const int relay2Pin = 9;          //電熱絲控制繼電器
+const int tcrt1InputA0 = A1;  //tcrt1(吐司厚度)的類比讀值輸入接腳
+const int tcrt2InputA0 = A2;  //tcrt2(下壓開關)的類比讀值輸入接腳
+const int tcrt2InputD0 = 7;   //tcrt2(下壓開關)的數位讀值輸入接腳
+const int adjustHeatTimeButton1=11;   //微調加熱時間選擇開關
+const int adjustHeatTimeButton2=12;   //微調加熱時間選擇開關
+const int reheatButton = 3;   //再加熱選擇開關
 unsigned long ms;   //當前時間
 unsigned long prems;//前一次紀錄的時間
-
+int adjustHeatTimeButton1State = 0;
+int adjustHeatTimeButton2State = 0;
+int adjustHeatTime = 0;//微調的秒數
+int reheatButtonState = 0;
 //在Arduino Nano Board 的 A5為SCL
 //                        A4為SDA
 //-----以下為mlx溫度感測器的引入函式、物件宣告-----

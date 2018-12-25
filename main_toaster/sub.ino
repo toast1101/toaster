@@ -3,7 +3,9 @@ void getAllSensorValue() {
   tcrt2Value = digitalRead(tcrt2InputD0);//做開關判斷，所以只讀高低準位
   mlxValue = mlx.readObjectTempC();     //讀取當前吐司溫度
   temperature = mlxValue;
-  
+  adjustHeatTimeButton1State = digitalRead(adjustHeatTimeButton1);
+  adjustHeatTimeButton2State = digitalRead(adjustHeatTimeButton2);
+  reheatButtonState = digitalRead(reheatButton);
 }
 
 void detect_toast() {
@@ -33,6 +35,9 @@ void debug() {
   Serial.print("tcrt1Value = "); Serial.println(tcrt1Value);
   Serial.print("tcrt2Value = "); Serial.println(tcrt2Value);
   Serial.print("heatMode = "); Serial.println(heatMode);
+  Serial.print("adjustHeatTimeButton1 and 2= ");Serial.print(adjustHeatTimeButton1State);
+  Serial.println(adjustHeatTimeButton2State);
+  Serial.print("reheatButton = ");Serial.println(reheatButtonState);
 }
 
 void calculateHeatMode() {
@@ -63,6 +68,15 @@ void calculateHeatMode() {
     }
     else heatMode = 'N';
   }
+  if(adjustHeatTimeButton1State ==1 && adjustHeatTimeButton2State == 0){
+    adjustHeatTime = -10;
+  }
+  else if(adjustHeatTimeButton1State ==0 && adjustHeatTimeButton2State == 1){
+    adjustHeatTime = 10;
+  }
+  else{
+    adjustHeatTime = 0;
+  }
 }
 
 void fastHeatMode() {
@@ -72,7 +86,8 @@ void fastHeatMode() {
     {
       digitalWrite(relay2Pin, HIGH);
       int remainTime = 120;
-      for (int owo = 0; owo < 120; owo++) { //基礎加熱時間120s
+      remainTime += adjustHeatTime;
+      while(remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
@@ -130,7 +145,7 @@ void fastHeatMode() {
     }
     else          //==========TCRT1狀態為0(不在偵測範圍內)==========
     {
-      delay(1000);
+      delay(500);
     }
   }
 }
@@ -142,7 +157,8 @@ void perfectHeatMode() {
     {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
       int remainTime = 120;
-      for (int owo = 0; owo < 120; owo++) { //基礎加熱時間120s
+      remainTime += adjustHeatTime;
+      while(remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
@@ -222,7 +238,7 @@ void perfectHeatMode() {
     }
     else                  //==========TCRT1狀態為2(不在偵測範圍內)==========
     {
-      delay(250);
+      delay(500);
     }
   }
 }
