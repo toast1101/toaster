@@ -121,9 +121,9 @@ void fastHeatMode() {
     if (toastInputState != 2)
     {
       digitalWrite(relay2Pin, HIGH);
-      int remainTime = 120;
+      int remainTime = 125;
       remainTime += adjustHeatTime;
-      while (remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
+      while (remainTime != 0) { //基礎加熱時間125s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
@@ -192,9 +192,9 @@ void perfectHeatMode() {
     if (toastInputState != 2)             //==========2個TCRT狀態不為2(正確)==========
     {
       digitalWrite(relay2Pin, HIGH); //======開啟電熱絲繼電器=======
-      int remainTime = 120;
+      int remainTime = 125;
       remainTime += adjustHeatTime;
-      while (remainTime != 0) { //基礎加熱時間120s + adjustHeatTime;
+      while (remainTime != 0) { //基礎加熱時間125s + adjustHeatTime;
         prems = ms = millis();
         while (ms - prems <= 1000) { //1s
           ms = millis();
@@ -206,9 +206,13 @@ void perfectHeatMode() {
       {
         case 'A':
           Serial.print("caseA");
-          digitalWrite(relay2Pin, HIGH);
-          delay(8000);
-          digitalWrite(relay2Pin, LOW);
+           for (int i = 0; i < 3; i++)
+          {
+            digitalWrite(relay2Pin, HIGH);
+            delay(4000);
+            digitalWrite(relay2Pin, LOW);
+            delay(6000);
+          }
           digitalWrite(relay1Pin, LOW); //考完吐司，關閉電磁鐵
           break;
         case 'B':
